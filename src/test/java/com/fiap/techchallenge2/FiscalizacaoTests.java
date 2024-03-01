@@ -11,12 +11,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import static com.fiap.techchallenge2.controller.EstacionamentoController.URL_FINALIZA;
+import static com.fiap.techchallenge2.controller.FiscalizacaoController.URL_FISCALIZACAO;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -31,10 +34,21 @@ class FiscalizacaoTests {
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCampos")
-	public void deveRetornarStatus400_validacoesDosCampos(String placa) throws Exception {
+	public void deveRetornarStatus400_validacoesDosCampos(String placa,
+														  String diaEHoraInicio,
+														  String diaEHoraFim) throws Exception {
+		MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+				.get(URL_FISCALIZACAO)
+				.contentType(MediaType.APPLICATION_JSON);
+
 		this.mockMvc
-				.perform(MockMvcRequestBuilders.put(URL_FINALIZA.replace("{placa}", placa))
-						.contentType(MediaType.APPLICATION_JSON))
+				.perform(MockMvcRequestBuilders
+						.get(URL_FISCALIZACAO)
+						.queryParam("placa", placa)
+						.queryParam("diaEHoraInicio", diaEHoraInicio)
+						.queryParam("diaEHoraFim", diaEHoraFim)
+						.contentType(MediaType.APPLICATION_JSON)
+				)
 				.andExpect(MockMvcResultMatchers
 						.status()
 						.isBadRequest()
@@ -46,30 +60,30 @@ class FiscalizacaoTests {
 
 	private static Stream<Arguments> requestValidandoCampos() {
 		return Stream.of(
-				Arguments.of("   "),
-				Arguments.of("a"),
-				Arguments.of("aaaaaaaaaa"),
-				Arguments.of("abcd1234"),
-				Arguments.of("ab1234"),
-				Arguments.of("ABCD1234"),
-				Arguments.of("AB1234"),
-				Arguments.of("aBcD1234"),
-				Arguments.of("Abcd1234"),
-				Arguments.of("ABC12345"),
-				Arguments.of("ABC123"),
-				Arguments.of("1"),
-				Arguments.of("1111111111"),
-				Arguments.of("ABC-1234"),
-				Arguments.of("abc12345"),
-				Arguments.of("abc123"),
-				Arguments.of("abc-1234"),
-				Arguments.of("AbC12345"),
-				Arguments.of("aBc123"),
-				Arguments.of("ABC1DE23"),
-				Arguments.of("ABC1D234"),
-				Arguments.of("ABC1dd23"),
-				Arguments.of("ABC1d234"),
-				Arguments.of("ABC-1A23")
+				Arguments.of("   ", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("a", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("aaaaaaaaaa", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("abcd1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ab1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABCD1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("AB1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("aBcD1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("Abcd1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC12345", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC123", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("1", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("1111111111", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC-1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("abc12345", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("abc123", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("abc-1234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("AbC12345", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("aBc123", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC1DE23", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC1D234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC1dd23", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC1d234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC-1A23", LocalDateTime.now().toString(), LocalDateTime.now().toString())
 		);
 	}
 
