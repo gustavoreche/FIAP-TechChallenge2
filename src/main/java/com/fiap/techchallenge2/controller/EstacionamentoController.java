@@ -1,12 +1,14 @@
 package com.fiap.techchallenge2.controller;
 
-import com.fiap.techchallenge2.model.dto.EstacionamentoIniciaDTO;
+import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
 import com.fiap.techchallenge2.service.EstacionamentoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 import static com.fiap.techchallenge2.controller.EstacionamentoController.URL_ESTACIONAMENTO;
 
@@ -28,7 +30,7 @@ public class EstacionamentoController {
 	}
 	
 	@PostMapping("/inicia")
-	public ResponseEntity<Void> inicia(@RequestBody @Valid final EstacionamentoIniciaDTO iniciaDTO) {
+	public ResponseEntity<Void> inicia(@RequestBody @Valid final EstacionamentoDTO iniciaDTO) {
 		this.service.inicia(iniciaDTO);
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
@@ -36,19 +38,18 @@ public class EstacionamentoController {
 	}
 
 	@PutMapping("/atualiza/{placa}")
-	public ResponseEntity<String> atualiza(@PathVariable("placa")
-											   @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") String placa) {
+	public ResponseEntity<String> atualiza(@RequestBody @Valid final EstacionamentoDTO atualizaDTO) {
 		return ResponseEntity
 				.status(HttpStatus.OK)
-				.body(this.service.atualiza());
+				.body(this.service.atualiza(atualizaDTO));
 	}
 
 	@PutMapping("/finaliza/{placa}")
 	public ResponseEntity<String> finaliza(@PathVariable("placa")
-											   @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") String placa) {
+											   @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") final String placa) {
 		return ResponseEntity
 				.status(HttpStatus.OK)
-				.body(this.service.finaliza());
+				.body(this.service.finaliza(placa, LocalDateTime.now()));
 	}
 
 }

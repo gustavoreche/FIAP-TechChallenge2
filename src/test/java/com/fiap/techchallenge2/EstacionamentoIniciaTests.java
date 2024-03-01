@@ -1,9 +1,8 @@
 package com.fiap.techchallenge2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.techchallenge2.model.dto.EstacionamentoIniciaDTO;
+import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
 import com.fiap.techchallenge2.model.dto.TempoPermanenciaEnum;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -61,7 +59,7 @@ class EstacionamentoIniciaTests {
 	@MethodSource("requestValidandoCampos")
 	public void deveRetornarStatus400_validacoesDosCampos(String placa,
 														  TempoPermanenciaEnum tempo) throws Exception {
-		var request = new EstacionamentoIniciaDTO(placa, tempo);
+		var request = new EstacionamentoDTO(placa, tempo);
 		var objectMapper = this.objectMapper
 				.writer()
 				.withDefaultPrettyPrinter();

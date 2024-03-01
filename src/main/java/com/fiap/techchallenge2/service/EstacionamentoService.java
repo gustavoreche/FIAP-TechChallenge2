@@ -1,11 +1,14 @@
 package com.fiap.techchallenge2.service;
 
-import com.fiap.techchallenge2.model.dto.EstacionamentoIniciaDTO;
+import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
+
+import java.time.LocalDateTime;
 
 public interface EstacionamentoService {
 
-    void inicia(EstacionamentoIniciaDTO iniciaDTO);
-    String atualiza();
-    String finaliza();
+    void inicia(final EstacionamentoDTO iniciaDTO);
+    String atualiza(final EstacionamentoDTO atualizaDTO);
+    String finaliza(final String placa,
+                    final LocalDateTime horaFim);
 
 }

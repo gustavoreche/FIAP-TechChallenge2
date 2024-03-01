@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 import static com.fiap.techchallenge2.controller.EstacionamentoController.REGEX_PLACA;
 
-public record EstacionamentoIniciaDTO(
+public record EstacionamentoDTO(
 		@NotBlank(message = "A placa nao pode ser vazia")
 		@Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao")
 		@JsonInclude(JsonInclude.Include.NON_NULL)
