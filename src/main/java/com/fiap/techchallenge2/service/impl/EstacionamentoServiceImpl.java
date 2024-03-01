@@ -11,6 +11,7 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
     @Override
     public void inicia(EstacionamentoIniciaDTO iniciaDTO) {
         //TODO: SALVAR NA BASE DE DADOS
+        System.out.println("oi");
     }
 
     @Override
