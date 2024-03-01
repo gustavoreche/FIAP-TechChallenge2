@@ -5,6 +5,7 @@ import com.fiap.techchallenge2.model.dto.EstacionamentoIniciaDTO;
 public interface EstacionamentoService {
 
     void inicia(EstacionamentoIniciaDTO iniciaDTO);
-    void finaliza();
+    String atualiza();
+    String finaliza();
 
 }

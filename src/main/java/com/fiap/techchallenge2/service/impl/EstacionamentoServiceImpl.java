@@ -15,7 +15,12 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
     }
 
     @Override
-    public void finaliza() {
+    public String atualiza() {
+        return "HELLO WORLD";
+    }
 
+    @Override
+    public String finaliza() {
+        return "HELLO WORLD";
     }
 }

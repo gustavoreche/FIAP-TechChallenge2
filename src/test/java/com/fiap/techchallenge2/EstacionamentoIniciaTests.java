@@ -66,14 +66,14 @@ class EstacionamentoIniciaTests {
 				.writer()
 				.withDefaultPrettyPrinter();
 		var jsonRequest = objectMapper.writeValueAsString(request);
-		var response = this.mockMvc
+		this.mockMvc
 				.perform(MockMvcRequestBuilders.post(URL_INICIA)
 						.content(jsonRequest)
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers
 						.status()
 						.isBadRequest()
-				).andReturn();
+				);
 		//TODO: FAZER VALIDACOES NO BANCO
 //		Assertions.assertEquals(0, this.filaAtendimentoRepository.findAll().size());
 //		Assertions.assertEquals(0, this.leadRepository.findAll().size());
