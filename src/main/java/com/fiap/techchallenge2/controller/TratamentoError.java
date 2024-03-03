@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class TratamentoError {
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler({HttpMessageNotReadableException.class, HandlerMethodValidationException.class})
+	@ExceptionHandler({HttpMessageNotReadableException.class, HandlerMethodValidationException.class, MethodArgumentTypeMismatchException.class})
 	public String trataErroNaValidacao(Exception ex) {
 		return "Erro de valor nos campos... O campo espera um valor(texto, número...) e foi passado outro valor. Segue o valor errado: " + ex.getMessage();
 	}

@@ -1,6 +1,8 @@
 package com.fiap.techchallenge2.controller;
 
 import com.fiap.techchallenge2.service.FiscalizacaoService;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;

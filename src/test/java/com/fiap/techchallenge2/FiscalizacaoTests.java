@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge2.controller.EstacionamentoController.URL_FINALIZA;
 import static com.fiap.techchallenge2.controller.FiscalizacaoController.URL_FISCALIZACAO;
 
 @AutoConfigureMockMvc
@@ -83,7 +82,13 @@ class FiscalizacaoTests {
 				Arguments.of("ABC1D234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
 				Arguments.of("ABC1dd23", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
 				Arguments.of("ABC1d234", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
-				Arguments.of("ABC-1A23", LocalDateTime.now().toString(), LocalDateTime.now().toString())
+				Arguments.of("ABC-1A23", LocalDateTime.now().toString(), LocalDateTime.now().toString()),
+				Arguments.of("ABC1A23", "2024-03-03", LocalDateTime.now().toString()),
+				Arguments.of("ABC1A23", "19:13:15.724979663", LocalDateTime.now().toString()),
+				Arguments.of("ABC1A23", "texto", LocalDateTime.now().toString()),
+				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "2024-03-03"),
+				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "19:13:15.724979663"),
+				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "texto")
 		);
 	}
 
