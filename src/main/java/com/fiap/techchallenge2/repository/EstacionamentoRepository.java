@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EstacionamentoRepository extends JpaRepository<Estacionamento, Long> {
 
-    Estacionamento findByPlaca(String placa);
+    Estacionamento findByPlacaAndSaidaIsNull(String placa);
 
 }

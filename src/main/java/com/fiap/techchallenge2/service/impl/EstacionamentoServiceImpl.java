@@ -23,7 +23,7 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
     @Override
     //TODO: VER CONCORRENCIA
     public ComprovanteEntradaDTO inicia(final EstacionamentoDTO iniciaDTO) {
-        if(Objects.nonNull(this.repository.findByPlaca(iniciaDTO.placa()))) {
+        if(Objects.nonNull(this.repository.findByPlacaAndSaidaIsNull(iniciaDTO.placa()))) {
             throw new RuntimeException("Este veículo ainda nao foi finalizado");
 
         }

@@ -158,6 +158,50 @@ class EstacionamentoIniciaTests {
 		mockData.close();
 	}
 
+	@Test
+	public void deveRetornarStatus201_iniciarUmVeiculoQueJaFoiFinalizado() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDateTime.of(2023, 11, 20, 20, 00, 00);
+		mockData.when(LocalDateTime::now)
+				.thenReturn(dataMock);
+
+		var estacionamento = new Estacionamento();
+		estacionamento.setPlaca("ABC1A23");
+		estacionamento.setEntrada(LocalDateTime.of(2023, 11, 20, 19, 00, 00));
+		estacionamento.setMinutosEscolhidosParaPermanencia(TempoPermanenciaEnum.DUAS_HORAS.getMinutos());
+		estacionamento.setSaida(LocalDateTime.of(2023, 11, 20, 19, 30, 00));
+		estacionamento.setAtualizouHorario(false);
+		estacionamento.setMinutosEscolhidosAtualizados(0);
+		estacionamento.setValorPagar(null);
+		this.repository.save(estacionamento);
+
+		var request = new EstacionamentoDTO("ABC1A23", TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_INICIA)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				)
+				.andReturn();
+
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, ComprovanteEntradaDTO.class);
+
+		Assertions.assertEquals(2, this.repository.findAll().size());
+		Assertions.assertEquals("ABC1A23", responseApp.placa());
+		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
+		Assertions.assertEquals(dataMock.plusMinutes(270), responseApp.horarioPrevistoDeSaida());
+
+		mockData.close();
+	}
+
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCamposNullsOuVazios")
