@@ -3,7 +3,7 @@ package com.fiap.techchallenge2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge2.model.dto.ComprovanteEntradaDTO;
 import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
-import com.fiap.techchallenge2.model.dto.TempoPermanenciaEnum;
+import com.fiap.techchallenge2.model.TempoPermanenciaEnum;
 import com.fiap.techchallenge2.repository.EstacionamentoRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -84,7 +84,7 @@ class EstacionamentoIniciaTests {
 		Assertions.assertEquals("ABC1A23", responseApp.placa());
 		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
 		Assertions.assertEquals(dataMock.plusMinutes(TempoPermanenciaEnum.MEIA_HORA.getMinutos()), responseApp.horarioDeSaida());
-		Assertions.assertEquals(this.valorMeiaHora.multiply(new BigDecimal(TempoPermanenciaEnum.MEIA_HORA.getMinutos())), responseApp.valorPago());
+		Assertions.assertEquals(new BigDecimal("5.00"), responseApp.valorPago());
 
 		mockData.close();
 	}
@@ -119,7 +119,7 @@ class EstacionamentoIniciaTests {
 		Assertions.assertEquals("ABC1A23", responseApp.placa());
 		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
 		Assertions.assertEquals(dataMock.plusMinutes(TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA.getMinutos()), responseApp.horarioDeSaida());
-		Assertions.assertEquals(this.valorMeiaHora.multiply(new BigDecimal(TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA.getMinutos())), responseApp.valorPago());
+		Assertions.assertEquals(new BigDecimal("45.00"), responseApp.valorPago());
 
 		mockData.close();
 	}

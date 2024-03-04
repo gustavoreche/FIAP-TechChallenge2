@@ -1,4 +1,4 @@
-package com.fiap.techchallenge2.model.dto;
+package com.fiap.techchallenge2.model;
 
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
 package com.fiap.techchallenge2.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fiap.techchallenge2.model.TempoPermanenciaEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,5 +16,5 @@ public record EstacionamentoDTO(
 
 		@NotNull(message = "O tempo nao pode ser vazio")
 		@JsonInclude(JsonInclude.Include.NON_NULL)
-		TempoPermanenciaEnum tempo
+        TempoPermanenciaEnum tempo
 ) {}

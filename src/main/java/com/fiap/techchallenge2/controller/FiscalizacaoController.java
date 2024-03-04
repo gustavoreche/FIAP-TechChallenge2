@@ -1,16 +1,12 @@
 package com.fiap.techchallenge2.controller;
 
+import com.fiap.techchallenge2.model.FiscalizacaoAplicaEnum;
 import com.fiap.techchallenge2.service.FiscalizacaoService;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -21,13 +17,21 @@ import static com.fiap.techchallenge2.controller.EstacionamentoController.REGEX_
 public class FiscalizacaoController {
 
 	public static final String URL_FISCALIZACAO = "/fiscalizacao";
+	public static final String URL_FISCALIZACAO_APLICA = URL_FISCALIZACAO.concat("/aplica/{placa}");
 
 	private final FiscalizacaoService service;
 
 	public FiscalizacaoController(final FiscalizacaoService service) {
 		this.service = service;
 	}
-	
+
+	@PutMapping("/aplica/{placa}")
+	public ResponseEntity<FiscalizacaoAplicaEnum> aplica(@PathVariable("placa") @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") final String placa) {
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(this.service.aplica(placa));
+	}
+
 	@GetMapping
 	public ResponseEntity<Void> solicita(@RequestParam(required = false) @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") final String placa,
 										 @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDateTime).now().minusDays(15)}") @NotNull(message = "A data nao pode ser vazia") final LocalDateTime diaEHoraInicio,

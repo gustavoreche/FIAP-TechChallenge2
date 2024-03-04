@@ -36,10 +36,6 @@ class FiscalizacaoTests {
 	public void deveRetornarStatus400_validacoesDosCampos(String placa,
 														  String diaEHoraInicio,
 														  String diaEHoraFim) throws Exception {
-		MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-				.get(URL_FISCALIZACAO)
-				.contentType(MediaType.APPLICATION_JSON);
-
 		this.mockMvc
 				.perform(MockMvcRequestBuilders
 						.get(URL_FISCALIZACAO)
