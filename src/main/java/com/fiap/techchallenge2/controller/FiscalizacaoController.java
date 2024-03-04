@@ -34,8 +34,8 @@ public class FiscalizacaoController {
 
 	@GetMapping
 	public ResponseEntity<Void> solicita(@RequestParam(required = false) @Pattern(regexp = REGEX_PLACA, message = "A placa inserida nao esta no padrao antigo, nem no novo padrao") final String placa,
-										 @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDateTime).now().minusDays(15)}") @NotNull(message = "A data nao pode ser vazia") final LocalDateTime diaEHoraInicio,
-										 @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDateTime).now()}") @NotNull(message = "A data nao pode ser vazia") final LocalDateTime diaEHoraFim) {
+										 @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDateTime).now().minusDays(15)}") final LocalDateTime diaEHoraInicio,
+										 @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDateTime).now()}") final LocalDateTime diaEHoraFim) {
 		this.service.solicita(placa, diaEHoraInicio, diaEHoraFim);
 		return ResponseEntity
 				.status(HttpStatus.OK)
