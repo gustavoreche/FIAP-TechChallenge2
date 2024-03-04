@@ -16,9 +16,24 @@ public class Estacionamento {
     private Long id;
     private String placa;
     private LocalDateTime entrada;
+    private int minutosEscolhidosParaPermanencia;
     private LocalDateTime saida;
     private boolean atualizouHorario;
-    private int minutosAtualizados;
+    private int minutosEscolhidosAtualizados;
     private BigDecimal valorPagar;
 
+
+    public Estacionamento inicia(String placa,
+                                 LocalDateTime horarioDeEntrada,
+                                 TempoPermanenciaEnum tempoEscolhidoParaPermanencia) {
+        var estacionamento = new Estacionamento();
+        estacionamento.setPlaca(placa);
+        estacionamento.setEntrada(horarioDeEntrada);
+        estacionamento.setMinutosEscolhidosParaPermanencia(tempoEscolhidoParaPermanencia.getMinutos());
+        estacionamento.setSaida(null);
+        estacionamento.setAtualizouHorario(false);
+        estacionamento.setMinutosEscolhidosAtualizados(0);
+        estacionamento.setValorPagar(null);
+        return estacionamento;
+    }
 }
