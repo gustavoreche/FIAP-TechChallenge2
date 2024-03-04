@@ -7,8 +7,8 @@ import com.fiap.techchallenge2.repository.EstacionamentoRepository;
 import com.fiap.techchallenge2.service.EstacionamentoService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 public class EstacionamentoServiceImpl implements EstacionamentoService {
@@ -21,16 +21,21 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
 
 
     @Override
+    //TODO: VER CONCORRENCIA
     public ComprovanteEntradaDTO inicia(final EstacionamentoDTO iniciaDTO) {
+        if(Objects.nonNull(this.repository.findByPlaca(iniciaDTO.placa()))) {
+            throw new RuntimeException("Este veículo ainda nao foi finalizado");
+
+        }
         LocalDateTime horarioDeEntrada = LocalDateTime.now();
-        LocalDateTime horarioDeSaida = horarioDeEntrada.plusMinutes(iniciaDTO.tempo().getMinutos());
+        LocalDateTime horarioPrevistoDeSaida = horarioDeEntrada.plusMinutes(iniciaDTO.tempo().getMinutos());
         this.repository.save(new Estacionamento().inicia(
                 iniciaDTO.placa(),
                 horarioDeEntrada,
-                horarioDeSaida
+                iniciaDTO.tempo()
                 )
         );
-        return new ComprovanteEntradaDTO(iniciaDTO.placa(), horarioDeEntrada, horarioDeSaida);
+        return new ComprovanteEntradaDTO(iniciaDTO.placa(), horarioDeEntrada, horarioPrevistoDeSaida);
     }
 
     @Override

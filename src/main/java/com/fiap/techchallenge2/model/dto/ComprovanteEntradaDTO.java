@@ -5,5 +5,5 @@ import java.time.LocalDateTime;
 public record ComprovanteEntradaDTO(
 		String placa,
 		LocalDateTime horarioDeEntrada,
-		LocalDateTime horarioDeSaida
+		LocalDateTime horarioPrevistoDeSaida
 ) {}
