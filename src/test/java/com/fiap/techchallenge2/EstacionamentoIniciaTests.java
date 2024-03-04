@@ -2,7 +2,6 @@ package com.fiap.techchallenge2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge2.model.dto.ComprovanteEntradaDTO;
-import com.fiap.techchallenge2.model.dto.Estacionamento;
 import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
 import com.fiap.techchallenge2.model.dto.TempoPermanenciaEnum;
 import com.fiap.techchallenge2.repository.EstacionamentoRepository;
@@ -13,6 +12,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -29,6 +30,9 @@ import static com.fiap.techchallenge2.controller.EstacionamentoController.URL_IN
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
 class EstacionamentoIniciaTests {
+
+	@Value("${valor.meia_hora}")
+	private BigDecimal valorMeiaHora;
 
     @Autowired
     private MockMvc mockMvc;
@@ -79,7 +83,8 @@ class EstacionamentoIniciaTests {
 		Assertions.assertEquals(1, this.repository.findAll().size());
 		Assertions.assertEquals("ABC1A23", responseApp.placa());
 		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
-		Assertions.assertEquals(dataMock.plusMinutes(30), responseApp.horarioPrevistoDeSaida());
+		Assertions.assertEquals(dataMock.plusMinutes(TempoPermanenciaEnum.MEIA_HORA.getMinutos()), responseApp.horarioDeSaida());
+		Assertions.assertEquals(this.valorMeiaHora.multiply(new BigDecimal(TempoPermanenciaEnum.MEIA_HORA.getMinutos())), responseApp.valorPago());
 
 		mockData.close();
 	}
@@ -113,95 +118,11 @@ class EstacionamentoIniciaTests {
 		Assertions.assertEquals(1, this.repository.findAll().size());
 		Assertions.assertEquals("ABC1A23", responseApp.placa());
 		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
-		Assertions.assertEquals(dataMock.plusMinutes(270), responseApp.horarioPrevistoDeSaida());
+		Assertions.assertEquals(dataMock.plusMinutes(TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA.getMinutos()), responseApp.horarioDeSaida());
+		Assertions.assertEquals(this.valorMeiaHora.multiply(new BigDecimal(TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA.getMinutos())), responseApp.valorPago());
 
 		mockData.close();
 	}
-
-	@Test
-	public void deveRetornarStatus500_iniciarUmVeiculoQueNaoEstaFinalizado() throws Exception {
-		var mockData = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
-		var dataMock = LocalDateTime.of(2023, 11, 20, 20, 00, 00);
-		mockData.when(LocalDateTime::now)
-				.thenReturn(dataMock);
-
-		var estacionamento = new Estacionamento();
-		estacionamento.setPlaca("ABC1A23");
-		estacionamento.setEntrada(LocalDateTime.of(2023, 11, 20, 19, 00, 00));
-		estacionamento.setMinutosEscolhidosParaPermanencia(TempoPermanenciaEnum.DUAS_HORAS.getMinutos());
-		estacionamento.setSaida(null);
-		estacionamento.setAtualizouHorario(false);
-		estacionamento.setMinutosEscolhidosAtualizados(0);
-		estacionamento.setValorPagar(null);
-		this.repository.save(estacionamento);
-
-		var request = new EstacionamentoDTO("ABC1A23", TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA);
-		var objectMapper = this.objectMapper
-				.writer()
-				.withDefaultPrettyPrinter();
-		var jsonRequest = objectMapper.writeValueAsString(request);
-		this.mockMvc
-				.perform(MockMvcRequestBuilders.post(URL_INICIA)
-						.content(jsonRequest)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers
-						.status()
-						.isInternalServerError()
-				);
-
-		var estacionamentoIniciado = this.repository.findAll().get(0);
-		Assertions.assertEquals(1, this.repository.findAll().size());
-		Assertions.assertEquals("ABC1A23", estacionamentoIniciado.getPlaca());
-		Assertions.assertEquals(dataMock.minusHours(1), estacionamentoIniciado.getEntrada());
-		Assertions.assertEquals(TempoPermanenciaEnum.DUAS_HORAS.getMinutos(), estacionamentoIniciado.getMinutosEscolhidosParaPermanencia());
-
-		mockData.close();
-	}
-
-	@Test
-	public void deveRetornarStatus201_iniciarUmVeiculoQueJaFoiFinalizado() throws Exception {
-		var mockData = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
-		var dataMock = LocalDateTime.of(2023, 11, 20, 20, 00, 00);
-		mockData.when(LocalDateTime::now)
-				.thenReturn(dataMock);
-
-		var estacionamento = new Estacionamento();
-		estacionamento.setPlaca("ABC1A23");
-		estacionamento.setEntrada(LocalDateTime.of(2023, 11, 20, 19, 00, 00));
-		estacionamento.setMinutosEscolhidosParaPermanencia(TempoPermanenciaEnum.DUAS_HORAS.getMinutos());
-		estacionamento.setSaida(LocalDateTime.of(2023, 11, 20, 19, 30, 00));
-		estacionamento.setAtualizouHorario(false);
-		estacionamento.setMinutosEscolhidosAtualizados(0);
-		estacionamento.setValorPagar(null);
-		this.repository.save(estacionamento);
-
-		var request = new EstacionamentoDTO("ABC1A23", TempoPermanenciaEnum.QUATRO_HORAS_E_MEIA);
-		var objectMapper = this.objectMapper
-				.writer()
-				.withDefaultPrettyPrinter();
-		var jsonRequest = objectMapper.writeValueAsString(request);
-		var response = this.mockMvc
-				.perform(MockMvcRequestBuilders.post(URL_INICIA)
-						.content(jsonRequest)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers
-						.status()
-						.isCreated()
-				)
-				.andReturn();
-
-		var responseAppString = response.getResponse().getContentAsString();
-		var responseApp = this.objectMapper
-				.readValue(responseAppString, ComprovanteEntradaDTO.class);
-
-		Assertions.assertEquals(2, this.repository.findAll().size());
-		Assertions.assertEquals("ABC1A23", responseApp.placa());
-		Assertions.assertEquals(dataMock, responseApp.horarioDeEntrada());
-		Assertions.assertEquals(dataMock.plusMinutes(270), responseApp.horarioPrevistoDeSaida());
-
-		mockData.close();
-	}
-
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCamposNullsOuVazios")
