@@ -5,15 +5,19 @@ import com.fiap.techchallenge2.model.dto.Estacionamento;
 import com.fiap.techchallenge2.model.dto.EstacionamentoDTO;
 import com.fiap.techchallenge2.repository.EstacionamentoRepository;
 import com.fiap.techchallenge2.service.EstacionamentoService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
 public class EstacionamentoServiceImpl implements EstacionamentoService {
 
     private final EstacionamentoRepository repository;
+
+    @Value("${valor.meia_hora}")
+    private BigDecimal valorMeiaHora;
 
     public EstacionamentoServiceImpl(final EstacionamentoRepository repository) {
         this.repository = repository;
@@ -21,31 +25,23 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
 
 
     @Override
-    //TODO: VER CONCORRENCIA E PAGAMENTO POR MEIA HORA ESCOLHIDA
     public ComprovanteEntradaDTO inicia(final EstacionamentoDTO iniciaDTO) {
-        if(Objects.nonNull(this.repository.findByPlacaAndSaidaIsNull(iniciaDTO.placa()))) {
-            throw new RuntimeException("Este veículo ainda nao foi finalizado");
-
-        }
-        LocalDateTime horarioDeEntrada = LocalDateTime.now();
-        LocalDateTime horarioPrevistoDeSaida = horarioDeEntrada.plusMinutes(iniciaDTO.tempo().getMinutos());
+        var horarioDeEntrada = LocalDateTime.now();
+        var horarioDeSaida = horarioDeEntrada.plusMinutes(iniciaDTO.tempo().getMinutos());
+        var valorPago = this.valorMeiaHora.multiply(new BigDecimal(iniciaDTO.tempo().getMinutos()));
         this.repository.save(new Estacionamento().inicia(
                 iniciaDTO.placa(),
                 horarioDeEntrada,
-                iniciaDTO.tempo()
+                horarioDeSaida,
+                valorPago
                 )
         );
-        return new ComprovanteEntradaDTO(iniciaDTO.placa(), horarioDeEntrada, horarioPrevistoDeSaida);
+        return new ComprovanteEntradaDTO(
+                iniciaDTO.placa(),
+                horarioDeEntrada,
+                horarioDeSaida,
+                valorPago
+        );
     }
 
-    @Override
-    public String atualiza(final EstacionamentoDTO atualizaDTO) {
-        return "HELLO WORLD";
-    }
-
-    @Override
-    public String finaliza(final String placa,
-                           final LocalDateTime horaFim) {
-        return "HELLO WORLD";
-    }
 }
