@@ -21,4 +21,17 @@ public class Estacionamento {
     private int minutosAtualizados;
     private BigDecimal valorPagar;
 
+
+    public Estacionamento inicia(String placa,
+                                 LocalDateTime horarioDeEntrada,
+                                 LocalDateTime horarioDeSaida) {
+        var estacionamento = new Estacionamento();
+        estacionamento.setPlaca(placa);
+        estacionamento.setEntrada(horarioDeEntrada);
+        estacionamento.setSaida(horarioDeSaida);
+        estacionamento.setAtualizouHorario(false);
+        estacionamento.setMinutosAtualizados(0);
+        estacionamento.setValorPagar(null);
+        return estacionamento;
+    }
 }
