@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface EstacionamentoRepository extends JpaRepository<Estacionamento, Long>, JpaSpecificationExecutor<Estacionamento> {
 
-    Estacionamento findTop1ByPlacaOrderByEntradaDesc(String placa);
+    Estacionamento findTop1ByPlacaOrderByIdDesc(String placa);
 
 }

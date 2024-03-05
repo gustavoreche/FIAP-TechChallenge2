@@ -368,7 +368,7 @@ class FiscalizacaoAplicaTests {
 		var responseApp = this.objectMapper
 				.readValue(responseAppString, FiscalizacaoAplicaEnum.class);
 
-		var registroNoBancoDeDados = this.repository.findTop1ByPlacaOrderByEntradaDesc("ABC1234");
+		var registroNoBancoDeDados = this.repository.findTop1ByPlacaOrderByIdDesc("ABC1234");
 
 		Assertions.assertEquals(2, this.repository.findAll().size());
 		Assertions.assertEquals(FiscalizacaoAplicaEnum.NAO_MULTADO, responseApp);
@@ -381,6 +381,103 @@ class FiscalizacaoAplicaTests {
 
 		mockData.close();
 	}
+
+	@Test
+	public void deveRetornarStatus200_multadoCarroComMultaNoRegistroAnterior() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDateTime.of(2023, 11, 19, 14, 00, 00);
+		mockData.when(LocalDateTime::now)
+				.thenReturn(dataMock);
+
+		var dataEntrada = dataMock.minusDays(2);
+		var estacionamento = Estacionamento
+				.builder()
+				.placa("ABC1234")
+				.entrada(null)
+				.saida(null)
+				.valorPago(new BigDecimal("5.00"))
+				.multado(true)
+				.horaFiscalizacao(dataEntrada.plusMinutes(60))
+				.build();
+
+		this.repository.save(estacionamento);
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders
+						.put(URL_FISCALIZACAO_APLICA.replace("{placa}", "ABC1234"))
+						.contentType(MediaType.APPLICATION_JSON)
+				)
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				)
+				.andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, FiscalizacaoAplicaEnum.class);
+
+		var registroNoBancoDeDados = this.repository.findTop1ByPlacaOrderByIdDesc("ABC1234");
+
+		Assertions.assertEquals(2, this.repository.findAll().size());
+		Assertions.assertEquals(FiscalizacaoAplicaEnum.MULTADO, responseApp);
+		Assertions.assertEquals("ABC1234", registroNoBancoDeDados.getPlaca());
+		Assertions.assertNull(registroNoBancoDeDados.getEntrada());
+		Assertions.assertNull(registroNoBancoDeDados.getSaida());
+		Assertions.assertNull(registroNoBancoDeDados.getValorPago());
+		Assertions.assertTrue(registroNoBancoDeDados.isMultado());
+		Assertions.assertEquals(dataMock, registroNoBancoDeDados.getHoraFiscalizacao());
+
+		mockData.close();
+	}
+
+	@Test
+	public void deveRetornarStatus200_multadoCarroComSemMultaNoRegistroAnterior() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDateTime.of(2023, 11, 19, 14, 00, 00);
+		mockData.when(LocalDateTime::now)
+				.thenReturn(dataMock);
+
+		var dataEntrada = dataMock.minusDays(2);
+		var estacionamento = Estacionamento
+				.builder()
+				.placa("ABC1234")
+				.entrada(dataEntrada)
+				.saida(dataEntrada.plusMinutes(TempoPermanenciaEnum.MEIA_HORA.getMinutos()))
+				.valorPago(new BigDecimal("5.00"))
+				.multado(false)
+				.horaFiscalizacao(null)
+				.build();
+
+		this.repository.save(estacionamento);
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders
+						.put(URL_FISCALIZACAO_APLICA.replace("{placa}", "ABC1234"))
+						.contentType(MediaType.APPLICATION_JSON)
+				)
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				)
+				.andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, FiscalizacaoAplicaEnum.class);
+
+		var registroNoBancoDeDados = this.repository.findTop1ByPlacaOrderByIdDesc("ABC1234");
+
+		Assertions.assertEquals(2, this.repository.findAll().size());
+		Assertions.assertEquals(FiscalizacaoAplicaEnum.MULTADO, responseApp);
+		Assertions.assertEquals("ABC1234", registroNoBancoDeDados.getPlaca());
+		Assertions.assertNull(registroNoBancoDeDados.getEntrada());
+		Assertions.assertNull(registroNoBancoDeDados.getSaida());
+		Assertions.assertNull(registroNoBancoDeDados.getValorPago());
+		Assertions.assertTrue(registroNoBancoDeDados.isMultado());
+		Assertions.assertEquals(dataMock, registroNoBancoDeDados.getHoraFiscalizacao());
+
+		mockData.close();
+	}
+
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCampos")

@@ -9,6 +9,7 @@ import com.fiap.techchallenge2.service.FiscalizacaoService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -27,8 +28,8 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
     public FiscalizacaoAplicaEnum aplica(final String placa) {
         var horaFiscalizacao = LocalDateTime.now();
         var diaDaFiscalizacao = horaFiscalizacao.toLocalDate();
-        var carro = this.repository.findTop1ByPlacaOrderByEntradaDesc(placa);
-        if(Objects.isNull(carro)) {
+        var carro = this.repository.findTop1ByPlacaOrderByIdDesc(placa);
+        if(this.existeCarroNaBaseDeDados(carro)) {
             var estacionamento = Estacionamento
                     .builder()
                     .placa(placa)
@@ -41,14 +42,20 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
             this.repository.save(estacionamento);
             return FiscalizacaoAplicaEnum.MULTADO;
         }
-        else if(Objects.nonNull(carro.getHoraFiscalizacao())
-                && diaDaFiscalizacao.equals(carro.getHoraFiscalizacao().toLocalDate())
-                && carro.isMultado()) {
-            return FiscalizacaoAplicaEnum.JA_MULTADO;
+        else if(this.fiscalizacaoNoMesmoDia(carro, diaDaFiscalizacao)) {
+            if(carro.isMultado()) {
+                return FiscalizacaoAplicaEnum.JA_MULTADO;
+            }
+            else if(horaFiscalizacao.isAfter(carro.getSaida())) {
+                carro.setMultado(true);
+                carro.setHoraFiscalizacao(horaFiscalizacao);
+                this.repository.save(carro);
+                return FiscalizacaoAplicaEnum.MULTADO;
+            }
         }
-        else if(horaFiscalizacao.isAfter(carro.getSaida())) {
-            if(Objects.nonNull(carro.getHoraFiscalizacao())
-                    && carro.isMultado()) {
+        else if (this.fiscalizacaoComDadosDoDiaAnterior(carro, diaDaFiscalizacao)) {
+            if(Objects.isNull(carro.getSaida()) ||
+                    horaFiscalizacao.isAfter(carro.getSaida())) {
                 var estacionamento = Estacionamento
                         .builder()
                         .placa(carro.getPlaca())
@@ -59,12 +66,8 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
                         .horaFiscalizacao(horaFiscalizacao)
                         .build();
                 this.repository.save(estacionamento);
-            } else {
-                carro.setMultado(true);
-                carro.setHoraFiscalizacao(horaFiscalizacao);
-                this.repository.save(carro);
+                return FiscalizacaoAplicaEnum.MULTADO;
             }
-            return FiscalizacaoAplicaEnum.MULTADO;
         }
 
         carro.setHoraFiscalizacao(horaFiscalizacao);
@@ -103,4 +106,27 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
                 )
                 .toList();
     }
+
+    private boolean existeCarroNaBaseDeDados(Estacionamento carro) {
+        return Objects.isNull(carro);
+    }
+
+    private boolean fiscalizacaoNoMesmoDia(Estacionamento carro,
+                                           LocalDate diaDaFiscalizacao) {
+        return (Objects.nonNull(carro.getHoraFiscalizacao())
+                && diaDaFiscalizacao.equals(carro.getHoraFiscalizacao().toLocalDate()))
+                ||
+                (Objects.nonNull(carro.getEntrada())
+                        && diaDaFiscalizacao.equals(carro.getEntrada().toLocalDate()));
+    }
+
+    private boolean fiscalizacaoComDadosDoDiaAnterior(Estacionamento carro,
+                                                      LocalDate diaDaFiscalizacao) {
+        return (Objects.nonNull(carro.getHoraFiscalizacao())
+                && diaDaFiscalizacao.isAfter(carro.getHoraFiscalizacao().toLocalDate()))
+                ||
+                (Objects.nonNull(carro.getEntrada())
+                        && diaDaFiscalizacao.isAfter(carro.getEntrada().toLocalDate()));
+    }
+
 }
