@@ -32,7 +32,7 @@ public class EstacionamentoServiceImpl implements EstacionamentoService {
         var valorPago = this.valorMeiaHora.multiply(quantidadeDeMeiaHoraAPagar);
         var estacionamento = Estacionamento
                 .builder()
-                .placa(iniciaDTO.placa())
+                .placa(iniciaDTO.placa().toUpperCase())
                 .entrada(horarioDeEntrada)
                 .saida(horarioDeSaida)
                 .valorPago(valorPago)
