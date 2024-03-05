@@ -2,11 +2,16 @@ package com.fiap.techchallenge2.service.impl;
 
 import com.fiap.techchallenge2.model.Estacionamento;
 import com.fiap.techchallenge2.model.FiscalizacaoAplicaEnum;
+import com.fiap.techchallenge2.model.dto.RelatorioFiscalizacaoDTO;
 import com.fiap.techchallenge2.repository.EstacionamentoRepository;
+import com.fiap.techchallenge2.repository.EstacionamentoSpecification;
 import com.fiap.techchallenge2.service.FiscalizacaoService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -68,10 +73,34 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
     }
 
     @Override
-    public String solicita(final String placa,
-                           final LocalDateTime diaEHoraInicio,
-                           final LocalDateTime diaEHoraFim) {
-        System.out.println(placa + " " + diaEHoraInicio + " " + " " + diaEHoraFim);
-        return "HELLO WORLD";
+    public List<RelatorioFiscalizacaoDTO> solicita(final String placa,
+                                                   final LocalDateTime diaEHoraInicio,
+                                                   final LocalDateTime diaEHoraFim) {
+        var periodoEmDias = diaEHoraInicio.until(diaEHoraFim, ChronoUnit.DAYS);
+        if(periodoEmDias > 30) {
+            throw new RuntimeException("O período de pesquisa está maior que 1 mês");
+        }
+        else if(periodoEmDias < 0 || diaEHoraInicio.until(diaEHoraFim, ChronoUnit.SECONDS) < 0) {
+            throw new RuntimeException("Data inicio maior que data fim");
+        }
+        var resultadosDaBusca = this.repository.findAll(
+                Specification
+                        .where(EstacionamentoSpecification.placa(Objects.isNull(placa) ? "" : placa))
+                        .and(EstacionamentoSpecification.diaEHoraInicio(diaEHoraInicio))
+                        .and(EstacionamentoSpecification.diaEHoraFim(diaEHoraFim)
+                        )
+        );
+        return resultadosDaBusca
+                .stream()
+                .map(registro -> new RelatorioFiscalizacaoDTO(
+                        registro.getPlaca(),
+                        registro.getEntrada(),
+                        registro.getSaida(),
+                        registro.getValorPago(),
+                        registro.isMultado(),
+                        registro.getHoraFiscalizacao()
+                    )
+                )
+                .toList();
     }
 }

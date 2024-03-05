@@ -1,7 +1,8 @@
 package com.fiap.techchallenge2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.TestInstance;
+import com.fiap.techchallenge2.repository.EstacionamentoRepository;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -23,13 +23,69 @@ import static com.fiap.techchallenge2.controller.FiscalizacaoController.URL_FISC
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
-class FiscalizacaoTests {
+class FiscalizacaoSolicitaTests {
 
     @Autowired
     private MockMvc mockMvc;
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Autowired
+	EstacionamentoRepository repository;
+
+	@BeforeEach
+	void inicializaLimpezaDoDatabase() {
+		this.repository.deleteAll();
+	}
+
+	@AfterAll
+	void finalizaLimpezaDoDatabase() {
+		this.repository.deleteAll();
+	}
+
+
+	//TODO: FAZER TESTE COM 30 DIAS
+	/*
+					Arguments.of(LocalDateTime.of(2023, 01, 13, 00, 00).toString(),
+						LocalDateTime.of(2023, 02, 12, 00, 00).toString())
+	 */
+
+	@ParameterizedTest
+	@MethodSource("requestPeriodoMaiorQue30Dias")
+	public void deveRetornarStatus500_periodoMaiorQue30Dias(String diaEHoraInicio,
+															String diaEHoraFim) throws Exception {
+		this.mockMvc
+				.perform(MockMvcRequestBuilders
+						.get(URL_FISCALIZACAO)
+						.queryParam("diaEHoraInicio", diaEHoraInicio)
+						.queryParam("diaEHoraFim", diaEHoraFim)
+						.contentType(MediaType.APPLICATION_JSON)
+				)
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				).andReturn();
+		Assertions.assertEquals(0, this.repository.findAll().size());
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestDataInicioMaiorQueDataFim")
+	public void deveRetornarStatus500_dataInicioMaiorQueDataFim(String diaEHoraInicio,
+																String diaEHoraFim) throws Exception {
+		this.mockMvc
+				.perform(MockMvcRequestBuilders
+						.get(URL_FISCALIZACAO)
+						.queryParam("diaEHoraInicio", diaEHoraInicio)
+						.queryParam("diaEHoraFim", diaEHoraFim)
+						.contentType(MediaType.APPLICATION_JSON)
+				)
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				).andReturn();
+		Assertions.assertEquals(0, this.repository.findAll().size());
+	}
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCampos")
@@ -48,9 +104,7 @@ class FiscalizacaoTests {
 						.status()
 						.isBadRequest()
 				).andReturn();
-		//TODO: FAZER VALIDACOES NO BANCO
-//		Assertions.assertEquals(0, this.filaAtendimentoRepository.findAll().size());
-//		Assertions.assertEquals(0, this.leadRepository.findAll().size());
+		Assertions.assertEquals(0, this.repository.findAll().size());
 	}
 
 	private static Stream<Arguments> requestValidandoCampos() {
@@ -85,6 +139,30 @@ class FiscalizacaoTests {
 				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "2024-03-03"),
 				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "19:13:15.724979663"),
 				Arguments.of("ABC1A23", LocalDateTime.now().toString(), "texto")
+		);
+	}
+
+	private static Stream<Arguments> requestPeriodoMaiorQue30Dias() {
+		return Stream.of(
+				Arguments.of(LocalDateTime.of(2023, 01, 13, 00, 00).toString(),
+						LocalDateTime.of(2023, 02, 13, 00, 00).toString()),
+				Arguments.of(LocalDateTime.of(2023, 01, 13, 00, 00).toString(),
+						"")
+		);
+	}
+
+	private static Stream<Arguments> requestDataInicioMaiorQueDataFim() {
+		return Stream.of(
+				Arguments.of(LocalDateTime.of(2023, 01, 15, 00, 00).toString(),
+						LocalDateTime.of(2023, 01, 14, 00, 00).toString()),
+				Arguments.of("",
+						LocalDateTime.now().minusDays(16).toString()),
+				Arguments.of(LocalDateTime.of(2023, 01, 15, 01, 00).toString(),
+						LocalDateTime.of(2023, 01, 15, 00, 00).toString()),
+				Arguments.of(LocalDateTime.of(2023, 01, 15, 00, 01).toString(),
+						LocalDateTime.of(2023, 01, 15, 00, 00).toString()),
+				Arguments.of(LocalDateTime.of(2023, 01, 15, 00, 00, 01).toString(),
+						LocalDateTime.of(2023, 01, 15, 00, 00, 00).toString())
 		);
 	}
 
