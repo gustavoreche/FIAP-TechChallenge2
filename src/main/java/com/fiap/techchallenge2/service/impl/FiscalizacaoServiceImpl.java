@@ -37,11 +37,13 @@ public class FiscalizacaoServiceImpl implements FiscalizacaoService {
             return FiscalizacaoAplicaEnum.MULTADO;
         }
         else if(Objects.nonNull(carro.getHoraFiscalizacao())
-                && diaDaFiscalizacao.equals(carro.getHoraFiscalizacao().toLocalDate())) {
+                && diaDaFiscalizacao.equals(carro.getHoraFiscalizacao().toLocalDate())
+                && carro.isMultado()) {
             return FiscalizacaoAplicaEnum.JA_MULTADO;
         }
         else if(horaFiscalizacao.isAfter(carro.getSaida())) {
-            if(Objects.nonNull(carro.getHoraFiscalizacao())) {
+            if(Objects.nonNull(carro.getHoraFiscalizacao())
+                    && carro.isMultado()) {
                 var estacionamento = Estacionamento
                         .builder()
                         .placa(carro.getPlaca())
