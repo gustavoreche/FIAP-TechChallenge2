@@ -3,18 +3,17 @@ version: "3.8"
 services:
   db:
     image: mariadb:10.5
+    hostname: db
     container_name: "containerBancoDeDados"
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ./scriptBancoDeDados:/docker-entrypoint-initdb.d
+      - ./../scriptBancoDeDados:/docker-entrypoint-initdb.d
     ports:
       - "3308:3306"
     restart: always
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: greche96/tech-challenge-2:latest
     container_name: app-parquimetro
     environment:
       MARIADB_HOST: db:3306

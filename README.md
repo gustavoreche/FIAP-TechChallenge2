@@ -3,6 +3,28 @@ Segundo desafio da pós graduação da FIAP
 
 ---
 
+## Existe 3 formas de executar o projeto
+OBSERVAÇÃO: Antes e a cada execução do DOCKER, é recomendado "limpar" as coisas do seu 
+DOCKER(CERTIFIQUE-SE QUE NÃO TENHA PROBLEMA EM APAGAR SUAS COISAS DO DOCKER). Execute o 
+comando *"docker system prune"* para limpar seu DOCKER.
+
+1- Localmente, podendo alterar o código(via IDE - classe TechChallenge2Application)
+- O único pré requisito dessa forma de executar a aplicação, é subir o banco de dados via docker.
+  - Entre no diretório **"docker-banco-de-dados"** e execute o comando *"docker-compose up --build"*
+
+2- Localmente, podendo alterar o código(via docker)
+- O único pré requisito dessa forma de executar a aplicação, é subir o banco de dados e a aplicação via docker.
+  - Porém dessa forma, você tem que "buildar" a aplicação.
+  - Entre no diretório **"raiz"**(onde se encontram os arquivos **Dockerfile**, **pom.xml**, etc...)
+    - Execute o comando *"mvn install"* -- para buildar a aplicação.
+    - Depois execute o comando *"docker-compose up --build"*.
+
+3- Via docker(com a imagem da aplicação já pronta)
+- O único pré requisito dessa forma de executar a aplicação, é subir o banco de dados e a aplicação via docker.
+  - Entre no diretório **"docker-image"** e execute o comando "*docker-compose up --build*"
+
+---
+
 ## RELATÓRIO TÉCNICO:
 
 ### Tecnologias e Ferramentas utilizadas:
